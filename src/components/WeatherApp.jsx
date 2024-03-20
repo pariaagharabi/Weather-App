@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 const WeatherApp = () => {
     // Initializing, Destructuring and Updating the States
     const [currentInputValue, setCurrentInputValue] = useState("");
-    console.log(currentInputValue);
+    // console.log(currentInputValue);
 
-    const [searchedLocation, setSearchedLocation] = useState();
+    const [searchedLocationInfo, setSearchedLocationInfo] = useState(null);
 
 
     // Defining the Methods
@@ -26,26 +26,41 @@ const WeatherApp = () => {
 
     const fetchData = async () => {
         try {
-            const apiKey = "349a149be3fee96f836a06f236f05860"
-            const dataURL = "http://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid={apiKey}";
-            
-            const response = await fetch(dataURL);
+            const apiKey = "349a149be3fee96f836a06f236f05860";
+            const url = `http://api.openweathermap.org/data/2.5/weather?q=${currentInputValue}&APPID=${apiKey}`;
+
+            const response = await fetch(url);
+
             if (!response.ok) {
-                throw new NetworkError(response.status)
+                throw new Error('Failed to fetch weather data');
             }
 
             const data = await response.json();
 
+            const weatherObj = {
+                location: `${data.name}`,
+                temperatur: `${Math.round(data.main.temp)}`,
+                low_temperatur: `${Math.round(data.main.temp_min)}`,
+                high_temperatur: `${Math.round(data.main.temp_max)}`,
+                condition: `${data.weather[0].description}`
+            };
+            setSearchedLocationInfo(weatherObj);
 
         } catch (err) {
             console.error("Error fetching data: ", err);
         }
     };
-    fetchData();
 
     const handleCurrentSearchChange = (e) => {
         const inputValue = e.target.value;
         setCurrentInputValue(inputValue);
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+
+        fetchData();
+        setCurrentInputValue("");
     };
 
     // Re-rendering  in UI
@@ -63,7 +78,7 @@ const WeatherApp = () => {
                     </div>
 
                     <div className="search-location-container">
-                        <form>
+                        <form onSubmit={handleSearchSubmit}>
                             <input
                                 type="text"
                                 name="searchName"
@@ -77,15 +92,22 @@ const WeatherApp = () => {
                     </div>
 
                     <div className="display-weather-condition">
-                        <h1>City</h1>
-                        <h3>Low Degree: &deg;C</h3>
-                        <h3>High Degree: &deg;C</h3>
-                        <p>Status: Hot</p>
+                        {
+                            searchedLocationInfo && (
+                                <div className="items">
+                                    <h1>{searchedLocationInfo.location}</h1>
+                                    <h3>{searchedLocationInfo.temperatur} &deg;C</h3>
+                                    <h3>{searchedLocationInfo.low_temperatur} &deg;C</h3>
+                                    <h3>{searchedLocationInfo.high_temperatur} &deg;C</h3>
+                                    <p>{searchedLocationInfo.condition}</p>
+                                </div>
+                            )
+                        }
                     </div>
 
                     <img src="/cute-cloud.png" alt="Cloud Image" />
                 </div>
-            </div>
+            </div >
 
         </>
     );
