@@ -32,7 +32,7 @@ const WeatherApp = () => {
             const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error('Failed to fetch weather data');
+                throw new Error('Failed to fetch weather data', response.status);
             }
 
             const data = await response.json();
