@@ -24,6 +24,29 @@ const WeatherApp = () => {
         return `${setMonth} ${setDays} ${setYear}`
     };
 
+    const fetchData = async () => {
+        try {
+            const apiKey = "349a149be3fee96f836a06f236f05860"
+            const dataURL = "http://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid={apiKey}";
+            
+            const response = await fetch(dataURL);
+            if (!response.ok) {
+                throw new NetworkError(response.status)
+            }
+
+            const data = await response.json();
+
+
+        } catch (err) {
+            console.error("Error fetching data: ", err);
+        }
+    };
+    fetchData();
+
+    const handleCurrentSearchChange = (e) => {
+        const inputValue = e.target.value;
+        setCurrentInputValue(inputValue);
+    };
 
     // Re-rendering  in UI
     return (
@@ -45,6 +68,8 @@ const WeatherApp = () => {
                                 type="text"
                                 name="searchName"
                                 placeholder="Search a Location..."
+                                value={currentInputValue}
+                                onChange={handleCurrentSearchChange}
                             />
 
                             <button>Search</button>
